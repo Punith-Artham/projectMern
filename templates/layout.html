@@ -19,19 +19,19 @@
 </head>
 <body>
 
-    <nav class="h-[10vh] shadow-md flex p-2 px-6 justify-between items-center">
+    <nav class="h-[10vh] shadow-md flex p-2 px-6 justify-between items-center fixed top-0 left-0 right-0 bg-white z-50">
         <div class="text-xl font-semibold text-rose-500">Clothify</div>
         <ul class="flex justify-around w-[50%]">
             <li><a href="{{ url_for('home') }}">Home</a></li>
-    
-            <!-- <li class="relative group">
+
+            <li class="relative group">
                 <a href="{{ url_for('men')}}" class="group">Shop Men</a>
                 <ul class="absolute hidden bg-white py-2 rounded-md shadow-md group-hover:block z-50 flex flex-col ">
-                    <li class="hover:bg-gray-200 p-2 px-4 w-[120px]"><a href="{{ url_for('men')}}">T-Shirts</a></li>
-                    <li class="hover:bg-gray-200 p-2 px-4 w-[120px]"><a href="{{ url_for('men')}}">Shirts</a></li>
-                    <li class="hover:bg-gray-200 p-2 px-4 w-[120px]"><a href="{{ url_for('men')}}">Jackets</a></li>
+                    <li class="hover:bg-gray-200 p-2 px-4 w-[120px]"><a href="{{ url_for('men')}}?category=tshirt">T-Shirts</a></li>
+                    <li class="hover:bg-gray-200 p-2 px-4 w-[120px]"><a href="{{ url_for('men')}}?category=shirts">Shirts</a></li>
+                    <li class="hover:bg-gray-200 p-2 px-4 w-[120px]"><a href="{{ url_for('men')}}?category=jackets">Jackets</a></li>
                 </ul>
-            </li> -->
+            </li>
     
             <li class="relative group">
                 <a href="{{ url_for('women') }}" class="group">Shop Women</a>
@@ -48,13 +48,12 @@
             </div> -->
 
             <li> <a href="{{url_for('view_cart')}}">View Cart</a> </li>
-    
-            <li><a href="{{ url_for('login') }}">Logout</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
     </nav>
     
 
-    <div class="content">
+    <div class="content pt-[10vh]">
         {% block content %}{% endblock %}
     </div>
 

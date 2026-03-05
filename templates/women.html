@@ -1,9 +1,14 @@
 {% extends 'layout.html' %} {% block content %}
-<div class="h-[90vh]">
-  <div class="flex w-full">
-    <!-- sidebar -->
-    <div class="w-[15%] p-6 min-h-[90vh] border-r-2 border-gray text-black">
-      <h3 class="text-black mb-2">Filters</h3>
+<div class="min-h-[90vh] bg-gradient-to-br from-white via-slate-50 to-rose-50 p-6 md:p-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-6">
+      <p class="text-rose-500 font-semibold">Women Collection</p>
+      <h2 class="text-3xl md:text-4xl font-black text-slate-900">Elegance in every detail.</h2>
+    </div>
+
+  <div class="flex w-full gap-5">
+    <div class="w-[18%] p-5 min-h-[70vh] bg-white border border-slate-200 rounded-2xl text-black shadow-sm">
+      <h3 class="text-black mb-3 font-semibold">Filters</h3>
 
       <!-- Toggle for T-Shirts -->
       <label class="block mb-2">
@@ -23,8 +28,7 @@
         Tops
       </label>
 
-      <!-- Price Filter -->
-      <h4 class="mb-2">Price Filter</h4>
+      <h4 class="mb-2 mt-4 font-semibold">Price</h4>
       <label class="block mb-2">
         <input type="radio" name="priceFilter" value="highToLow" checked />
         High to Low
@@ -34,29 +38,18 @@
         Low to High
       </label>
 
-      <!-- Rating Filter -->
-      <h4 class="mb-2 mt-4">Rating Filter</h4>
-      <label class="block mb-2">
-        <input type="radio" name="ratingFilter" value="highToLow" checked />
-        High to Low
-      </label>
-      <label class="block">
-        <input type="radio" name="ratingFilter" value="lowToHigh" />
-        Low to High
-      </label>
     </div>
 
-    <!-- content -->
-    <div class="max-h-[80vh] overflow-y-scroll w-[85%] p-6">
+    <div class="max-h-[75vh] overflow-y-auto w-[82%] pr-1">
       <h2 class="text-2xl font-semibold mb-4">Women's Clothing Collection</h2>
 
       <div
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
         id="productsContainer"
       >
-        <!-- Render products dynamically here based on selected filters -->
       </div>
     </div>
+  </div>
   </div>
 </div>
 
@@ -73,17 +66,12 @@
     const jacketToggle = document.getElementById("jacketToggle");
     const topsToggle = document.getElementById("topsToggle");
     const priceFilters = document.getElementsByName("priceFilter");
-    const ratingFilters = document.getElementsByName("ratingFilter");
 
     dressesToggle.addEventListener("change", renderProducts);
     jacketToggle.addEventListener("change", renderProducts);
     topsToggle.addEventListener("change", renderProducts);
 
     priceFilters.forEach((filter) => {
-      filter.addEventListener("change", renderProducts);
-    });
-
-    ratingFilters.forEach((filter) => {
       filter.addEventListener("change", renderProducts);
     });
   }
@@ -94,7 +82,7 @@
       if (response.ok) {
         const dataset = await response.json();
         console.log(dataset);
-        data = JSON.parse(dataset);
+        data = typeof dataset === "string" ? JSON.parse(dataset) : dataset;
         console.log(data);
         renderProducts();
       } else {
@@ -115,32 +103,27 @@
     const priceFilter = document.querySelector(
       'input[name="priceFilter"]:checked'
     ).value;
-    const ratingFilter = document.querySelector(
-      'input[name="ratingFilter"]:checked'
-    ).value;
 
     let selectedProducts = [];
+    const womenData = (data && data.women) || {};
 
     if (selectedDresses) {
-      selectedProducts = selectedProducts.concat(data.women.dresses);
+      selectedProducts = selectedProducts.concat(womenData.dresses || []);
     }
 
     if (selectedJacket) {
-      selectedProducts = selectedProducts.concat(data.women.jackets);
+      selectedProducts = selectedProducts.concat(womenData.jackets || []);
     }
 
     if (selectedTops) {
-      selectedProducts = selectedProducts.concat(data.women.tops);
+      selectedProducts = selectedProducts.concat(womenData.tops || []);
     }
 
-    // Apply price and rating filters
+    // Apply price filter
     console.log(selectedProducts);
     if (priceFilter) {
       selectedProducts = selectedProducts
-        .filter(
-          (product) =>
-            product.price !== undefined && product.rating !== undefined
-        )
+        .filter((product) => product.price !== undefined)
         .sort((a, b) => {
           if (priceFilter === "highToLow") {
             return parseFloat(b.price) - parseFloat(a.price);
@@ -148,37 +131,39 @@
             return parseFloat(a.price) - parseFloat(b.price);
           }
         });
-    } else if (ratingFilter)
-      selectedProducts = selectedProducts
-        .filter(
-          (product) =>
-            product.price !== undefined && product.rating !== undefined
-        )
-        .sort((a, b) => {
-          if (ratingFilter === "highToLow") {
-            return parseFloat(b.rating) - parseFloat(a.rating);
-          } else {
-            return parseFloat(a.rating) - parseFloat(b.rating);
-          }
-        });
+    }
+
+    if (!selectedProducts.length) {
+      productsContainer.innerHTML = '<div class="col-span-full text-center text-slate-500 font-medium py-10 bg-white border border-slate-200 rounded-xl">No clothes found for selected filters. Try enabling more categories.</div>';
+      return;
+    }
 
     // Render filtered products
     selectedProducts.forEach((product, index) => {
       const productCard = document.createElement("div");
-      productCard.className = "border p-4";
+      productCard.className = "border border-slate-200 rounded-2xl p-4 shadow-sm bg-white hover:shadow-md transition";
       productCard.innerHTML = `
-            <img src="${product.img}" alt="${product.name}" class="mb-2 h-[300px] object-contain w-full">
-            <h3 class="text-lg font-semibold">${product.name}</h3>
-            <p>${product.brand}</p>
-            <p>Price: ${product.price}</p>
-            <p>Rating: ${product.rating}</p>
-            <p>Reviews: ${product.reviews}</p>
+        <div class="bg-slate-100 rounded-xl p-2 mb-3 h-[280px] overflow-hidden">
+              <img src="${product.img}" alt="${product.name}" class="h-full w-full object-cover rounded-md">
+            </div>
+        <p class="text-xs font-semibold text-rose-500">${product.brand}</p>
+        <h3 class="text-lg font-bold text-slate-900 mt-1">${product.name}</h3>
+        <p class="mt-2 text-xl font-bold text-slate-900">₹ ${product.price}</p>
+            <select id="size-${product.category}-${product.index}" name="size" class="mt-2 border border-zinc-400 rounded-md p-1 w-full">
+              <option value="">Select Size</option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+            </select>
 
             <div class="flex gap-2 items-center mt-4 w-full text-sm">
-                <button onclick="window.location.href='/women/${product.category}/${product.index}'" class="border-[1px] border-green-500 bg-green-500 text-white font-semibold rounded-md py-2 w-full"> Buy Now </button>
-                <button onClick="addToCart('${product.index}','${product.category}')" class="border-[1px] border-rose-400 rounded-md py-2 w-full flex items-baseline justify-center gap-2"> 
-                    <img src="../static/assets/bag-fill.svg" class="h-4 text-black fill-black"></img> 
-                    <span>Add to Cart</span>   
+                <button onclick="window.location.href='/women/${product.category}/${product.index}'" class="border border-slate-300 bg-white text-slate-800 font-semibold rounded-lg py-2 w-full hover:bg-slate-100"> View </button>
+              <button onclick="window.location.href='/women/${product.category}/${product.index}'" class="try-btn border border-blue-500 bg-blue-500 text-white font-semibold rounded-lg py-2 w-full"> Try </button>
+              <button onClick="addToCart('${product.index}','${product.category}')" class="add-cart-btn add-cart-primary border rounded-lg py-2 w-full flex items-center justify-center gap-2"> 
+                <i class="bi bi-bag-plus-fill"></i>
+                    <span>Add</span>
                 </button>
             </div>
         `;
@@ -189,18 +174,30 @@
   async function addToCart(index, category) {
     console.log(index, category);
 
+    const sizeElement = document.getElementById(`size-${category}-${index}`);
+    const size = sizeElement ? sizeElement.value : "";
+    if (!size) {
+      alert("Please select a size first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("size", size);
+
     const res = await fetch(`/add_to_cart/women/${category}/${index}`, {
       method: "POST",
+      body: formData,
     });
     const data = await res.json();
 
     console.log(data);
 
     if (data.message) {
-      alert("Item Added to Cart!");
+      alert(`Item Added to Cart! Size: ${data.size}`);
     } else {
-      alert("Something Went Wrong. Try again later");
+      alert(data.error || "Something Went Wrong. Try again later");
     }
   }
+
 </script>
 {% endblock %}

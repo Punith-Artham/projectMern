@@ -20,18 +20,6 @@
           <p class="text-3xl font-semibold">{{ product.brand }}</p>
           <p class="text-md">{{ product.name }}</p>
 
-          <div
-            class="bg-zinc-200 mt-1 flex items-center gap-2 rounded-3xl px-2 border-[1px] border-zinc-500 w-fit"
-          >
-            <div class="flex item-center gap-1 justify-center p-1">
-              {{ product.rating }}
-              <i class="bi bi-star-fill text-green-500"></i>
-            </div>
-            <div class="border-l-[1px] border-zinc-500 p-1">
-              {{ product.reviews }} Reviews
-            </div>
-          </div>
-
           <div class="my-2 h-[1px] bg-slate-400 w-full"></div>
 
           <p class="text-3xl font-semibold">₹ {{ product.price }}</p>
@@ -41,28 +29,19 @@
 
           <div class="flex flex-col my-2">
             <h4 class="text-xl font-semibold">Select Size</h4>
-            <div class="flex gap-3 mt-1">
-              <div
-                class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center"
-              >
-                S
-              </div>
-              <div
-                class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center"
-              >
-                M
-              </div>
-              <div
-                class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center"
-              >
-                L
-              </div>
-              <div
-                class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center"
-              >
-                XL
-              </div>
-            </div>
+            <select
+              name="size"
+              id="selectedSize"
+              class="mt-2 border border-zinc-500 rounded-md p-2 w-[160px] bg-white"
+            >
+              <option value="">Choose size</option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+            </select>
+            <p id="cartStatus" class="text-sm mt-2 font-semibold"></p>
           </div>
         </div>
       </div>
@@ -75,7 +54,13 @@
           Buy Now
         </button>
         <button
-          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md"
+          class="add-cart-btn bg-rose-500 text-white font-semibold py-2 px-4 rounded-md"
+          id="addToCartButton"
+        >
+          Add To Cart
+        </button>
+        <button
+          class="try-btn bg-blue-500 text-white font-semibold py-2 px-4 rounded-md"
           id="tryButton"
         >
           Try It
@@ -87,7 +72,7 @@
   <!-- Modal 1: File Upload -->
   <div
     id="modal"
-    class="hidden h-[100vh] w-[100vw] fixed left-0 top-0 bg-[rgba(0,0,0,0.8)] flex justify-center items-center"
+    class="hidden h-[100vh] w-[100vw] fixed left-0 top-0 bg-[rgba(0,0,0,0.8)] flex justify-center items-center z-[90]"
   >
     <div class="relative bg-white rounded-md p-4 flex w-[40vw]">
       <div
@@ -126,12 +111,13 @@
   <!-- Modal 2: Display Uploaded Image -->
   <div
     id="modal2"
-    class="hidden h-[100vh] w-[100vw] fixed left-0 top-0 bg-[rgba(0,0,0,0.8)] flex justify-center items-center"
+    class="hidden h-[100vh] w-[100vw] fixed left-0 top-0 bg-[rgba(0,0,0,0.8)] flex justify-center items-center z-[90]"
   >
     <div
       class="relative bg-white rounded-md p-8 flex flex-col w-[500px] h-[600px] overflow-auto"
     >
       <h4>This is how it will look on you !</h4>
+      <span id="frameBadge" class="mt-2 text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 text-slate-700 w-fit">Frame: -</span>
 
       <div
         class="p-2 h-[30px] w-[30px] rounded-full bg-zinc-600 text-white font-bold flex items-center justify-center absolute top-1 right-1 cursor-pointer"
@@ -146,6 +132,21 @@
         alt=""
         class="mt-4 w-full h-full object-cover"
       />
+
+      <button
+        id="infoButton"
+        class="mt-3 bg-slate-700 text-white font-semibold py-2 px-3 rounded-md w-fit"
+      >
+        Info
+      </button>
+
+      <div id="predictionPanel" class="mt-4 hidden">
+        <h4 class="text-xl font-semibold">Size Prediction Results</h4>
+        <p><strong>Estimated Size:</strong> <span id="predSize">-</span></p>
+        <p><strong>Gender:</strong> <span id="predGender">-</span></p>
+        <h5 class="mt-2 font-semibold">Measurements:</h5>
+        <div class="bg-gray-100 p-4 rounded-lg text-sm" id="predMeasurements"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -163,6 +164,12 @@
     const tryButton = document.getElementById("tryButton");
     const closeModalButton = document.getElementById("closeModalButton");
     const closeModal2Button = document.getElementById("closeModal2Button");
+    const infoButton = document.getElementById("infoButton");
+    const predictionPanel = document.getElementById("predictionPanel");
+    const frameBadge = document.getElementById("frameBadge");
+    const addToCartButton = document.getElementById("addToCartButton");
+    const selectedSize = document.getElementById("selectedSize");
+    const cartStatus = document.getElementById("cartStatus");
     const modal = document.getElementById("modal");
     const modal2 = document.getElementById("modal2");
 
@@ -183,6 +190,38 @@
     // Event listener for closing modal2
     closeModal2Button.addEventListener("click", function () {
       toggleModal(modal2);
+    });
+
+    infoButton.addEventListener("click", function () {
+      predictionPanel.classList.toggle("hidden");
+    });
+
+    addToCartButton.addEventListener("click", async function () {
+      const size = selectedSize.value;
+      if (!size) {
+        cartStatus.textContent = "Please select size before adding to cart.";
+        cartStatus.className = "text-sm mt-2 font-semibold text-red-600";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("size", size);
+
+      try {
+        const response = await fetch("/add_to_cart/{{ gender }}/{{ product.category }}/{{ index }}", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to add item");
+        }
+        cartStatus.textContent = `Added to cart (Size: ${data.size})`;
+        cartStatus.className = "text-sm mt-2 font-semibold text-emerald-700";
+      } catch (error) {
+        cartStatus.textContent = error.message || "Unable to add item to cart";
+        cartStatus.className = "text-sm mt-2 font-semibold text-red-600";
+      }
     });
 
     // Function to toggle modal visibility
@@ -290,6 +329,9 @@
           formData.append("clothing_image", blob, "clothing_image.jpg");
         } catch (error) {
           console.error("Error fetching clothing image:", error);
+          alert("Unable to read product image. Please refresh and try again.");
+          uploadButton.textContent = "Upload File";
+          uploadButton.disabled = false;
           return;
         }
       }
@@ -303,16 +345,25 @@
         method: "POST",
         body: formData,
       })
-        .then((response) => response.json()) // Parse JSON response from server
+        .then(async (response) => {
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "Upload failed");
+          }
+          return data;
+        })
         .then((data) => {
           console.log("Server Response:", data);
-          uploadButton.textContent = "Upload File";
-          uploadButton.disabled = false;
 
           if (data.image_url) {
             // Hide the file input modal and show the result image modal
             toggleModal(modal);
             toggleModal(modal2);
+            predictionPanel.classList.add("hidden");
+            document.getElementById("predSize").textContent = "-";
+            document.getElementById("predGender").textContent = "-";
+            document.getElementById("predMeasurements").innerHTML = "";
+            frameBadge.textContent = "Frame: -";
 
             // Set the image source to the image URL returned from the backend
             const imagePath = data.image_url; // Example: '/uploads/output_image.png'
@@ -322,10 +373,16 @@
             predictSize(fileInput.files[0]);
           } else {
             console.error("Error:", data.error);
+            alert(data.error || "Upload failed. Please try again.");
           }
         })
         .catch((error) => {
           console.error("Error during upload:", error);
+          alert(error.message || "Upload failed. Please try again.");
+        })
+        .finally(() => {
+          uploadButton.textContent = "Upload File";
+          uploadButton.disabled = false;
         });
     }
 
@@ -343,40 +400,55 @@
         .then((rawData) => {
           console.log("Raw Size Prediction Response:", rawData);
 
+          if (rawData.error) {
+            alert(rawData.error || "Failed to predict size");
+            return;
+          }
+
           // Extract values for better readability
-          const { estimated_size, gender, measurements } = rawData;
+          const {
+            estimated_size,
+            gender,
+            predicted_gender,
+            gender_confidence,
+            size_confidence,
+            frame_type,
+            suggestion,
+            measurements,
+            gender_warning,
+            size_warning,
+          } = rawData;
+
+          const safeMeasurements = measurements || {};
 
           // Format the measurements
           const formattedMeasurements = `
-        <p><strong>Arm Length:</strong> ${measurements.arm_length ?? "N/A"}</p>
-        <p><strong>Leg Length:</strong> ${measurements.leg_length ?? "N/A"}</p>
-        <p><strong>Shoulder Width:</strong> ${
-          measurements.shoulder_width ?? "N/A"
-        } cm</p>
-        <p><strong>Estimated Height:</strong> ${
-          measurements.estimated_height ?? "N/A"
-        } cm</p>
-        <p><strong>Estimated Waist:</strong> ${
-          measurements.estimated_waist ?? "N/A"
-        } cm</p>
+        <p><strong>Frame Type:</strong> ${frame_type || "N/A"}</p>
+        <p><strong>Arm Length:</strong> ${safeMeasurements.arm_length_cm ?? "N/A"} cm</p>
+        <p><strong>Shoulder Width:</strong> ${safeMeasurements.shoulder_width_cm ?? "N/A"} cm</p>
+        <p><strong>Hip Width:</strong> ${safeMeasurements.hip_width_cm ?? "N/A"} cm</p>
+        <p><strong>Upper Body Length:</strong> ${safeMeasurements.torso_length_cm ?? "N/A"} cm</p>
+        ${safeMeasurements.estimated_height_cm !== null && safeMeasurements.estimated_height_cm !== undefined
+          ? `<p><strong>Height:</strong> ${safeMeasurements.estimated_height_cm} cm</p>`
+          : `<p><strong>Height:</strong> Not estimated (upload full-body photo)</p>`}
+        ${suggestion ? `<p><strong>Suggestion:</strong> ${suggestion}</p>` : ""}
+        ${gender_warning ? `<p><strong>Gender Note:</strong> ${gender_warning}</p>` : ""}
       `;
 
-          // Select the modal content container
-          const modalContent = document.querySelector("#modal2 .relative");
+          const genderLabelRaw = (gender || predicted_gender || "N/A").toString().trim().toLowerCase();
+          const genderLabel = genderLabelRaw === "male"
+            ? "Male"
+            : genderLabelRaw === "female"
+              ? "Female"
+              : genderLabelRaw === "uncertain"
+                ? "Uncertain"
+                : "N/A";
 
-          // Keep the existing content (like the image) and append the new content
-          const existingContent = modalContent.innerHTML;
-
-          modalContent.innerHTML = `
-        ${existingContent} <!-- Preserve the image or previous content -->
-        <div class="mt-4">
-          <h4 class="text-xl font-semibold">Size Prediction Results</h4>
-          <p><strong>Estimated Size:</strong> ${estimated_size}</p>
-          <p><strong>Gender:</strong> ${gender}</p>
-          <h5 class="mt-2 font-semibold">Measurements:</h5>
-          <div class="bg-gray-100 p-4 rounded-lg text-sm">${formattedMeasurements}</div>
-        </div>
-      `;
+          document.getElementById("predSize").textContent = `${estimated_size || "N/A"}`;
+          document.getElementById("predGender").textContent = `${genderLabel}${Number.isFinite(Number(gender_confidence)) ? ` (${Number(gender_confidence).toFixed(1)}%)` : ""}`;
+          document.getElementById("predMeasurements").innerHTML = formattedMeasurements;
+          frameBadge.textContent = `Frame: ${(frame_type || "N/A").replace("_", " ").toUpperCase()}`;
+          predictionPanel.classList.remove("hidden");
         })
         .catch((error) => {
           console.error("Error during size prediction:", error);

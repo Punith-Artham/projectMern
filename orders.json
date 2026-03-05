@@ -1,0 +1,81 @@
+{
+  "orders": [
+    {
+      "order_id": "ORD-5716E62D",
+      "user": "p7095618727@gmail.com",
+      "user_key": "p7095618727@gmail.com127.0.0.1",
+      "items": [
+        {
+          "name": "Jacket3",
+          "brand": "StyleHub",
+          "price": "2119",
+          "img": "./static/assets/mens/jackets/jacket3.png",
+          "sizes": [
+            "S",
+            "M",
+            "L",
+            "XL"
+          ],
+          "rating": "4.3",
+          "reviews": "16",
+          "collection": "summer",
+          "category": "jackets",
+          "index": 2,
+          "selected_size": "XS"
+        }
+      ],
+      "total_amount": 2119.0,
+      "address": {
+        "full_name": "PUNITH ARTHAM",
+        "phone": "08639423398",
+        "address_line": "suryodhaya colony,rd no 5",
+        "city": "Hyderabad",
+        "pincode": "500074"
+      },
+      "payment_method": "Card",
+      "payment_status": "Paid",
+      "delivery_status": "Not Delivered",
+      "created_at": "2026-03-03T17:38:21.466437"
+    },
+    {
+      "order_id": "ORD-0B893D52",
+      "user": "apunithnlg19@gmail.com",
+      "user_key": "apunithnlg19@gmail.com127.0.0.1",
+      "items": [
+        {
+          "name": "Jacket4",
+          "brand": "StyleHub",
+          "price": "2229",
+          "img": "./static/assets/mens/jackets/jacket4.png",
+          "sizes": [
+            "S",
+            "M",
+            "L",
+            "XL"
+          ],
+          "rating": "4.4",
+          "reviews": "18",
+          "collection": "winter",
+          "category": "jackets",
+          "index": 3,
+          "avg_rating": 4.4,
+          "rating_count": 18,
+          "selected_size": "XS",
+          "gender": "men"
+        }
+      ],
+      "total_amount": 2229.0,
+      "address": {
+        "full_name": "PUNITH ARTHAM",
+        "phone": "08639423398",
+        "address_line": "suryodhaya colony,rd no 5",
+        "city": "Hyderabad",
+        "pincode": "500074"
+      },
+      "payment_method": "COD",
+      "payment_status": "Paid",
+      "delivery_status": "Not Delivered",
+      "created_at": "2026-03-03T18:02:45.336740"
+    }
+  ]
+}

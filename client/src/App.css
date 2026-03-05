@@ -1,0 +1,17 @@
+#root {
+  min-height: 100vh;
+}
+
+.nav-link {
+  border: 1px solid rgba(82, 82, 82, 1);
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.95);
+  padding: 0.4rem 0.8rem;
+  color: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  border-color: rgba(245, 245, 245, 1);
+  background: rgba(23, 23, 23, 1);
+}

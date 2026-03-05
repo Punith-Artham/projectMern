@@ -19,3 +19,4 @@ joblib
 pydantic
 python-jose
 python-dotenv
+deepface
